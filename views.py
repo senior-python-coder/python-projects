@@ -1,24 +1,21 @@
-rom django.shortcuts import render
 from django.http import HttpResponse
+from .models import Student
 
-# 📚 Kitoblar ro‘yxati
-books = [
-    {"id": 1, "title": "Alpomish", "description": "„Alpomish“ — oʻzbek xalq ogʻzaki badiiy ijodidagi qahramon personaj. Turkiy xalqlarda ogʻizdan ogʻizga oʻtib kelayotgan biylarning sardori."},
-    {"id": 2, "title": "Sariq devni minib", "description": "„Sariq devni minib“ romani (1968) yozuvchiga katta shuhrat keltirgan. Yozuvchi Xudoyberdi To'xtaboyev"},
-    {"id": 3, "title": "Dunyo ishlari", "description": "„Dunyoning ishlari“ — Oʻzbekiston xalq yozuvchisi Oʻtkir Hoshimov qalamiga mansub memuar qissa. Asar katta-kichik hikoyalardan iborat, uzoq yillar davomida yozilgan va toʻliq tarzda 2005-yilda Sharq nashriyoti tomonidan nashr etilgan. Keyinchalik boshqa nashriyotlar tomonidan ham koʻp bora qayta nashr etildi."}
-]
+def student_list(request):
+    students = Student.objects.all()
+    output = "<h1>Talabalar ro‘yxati</h1><ul>"
+    for student in students:
+        output += f"<li>{student.full_name} ({student.faculty.name}) - {student.email}</li>"
+    output += "</ul>"
 
-def book_list(request):
-    html = "<h1>📚 Kitoblar ro‘yxati</h1><ul>"
-    for book in books:
-        html += f'<li><a href="/book/{book["id"]}/">{book["title"]}</a></li>'
-    html += "</ul>"
-    return HttpResponse(html)
+    # Admin panelga link qo‘shamiz
+    output += """
+        <hr>
+        <p style='text-align:center;'>
+            <a href='/admin/' style='padding:10px 20px; background:#3498db; color:white; text-decoration:none; border-radius:5px;'>
+                Admin paneli ->
+            </a>
+        </p>
+    """
 
-def book_detail(request, book_id):
-    book = next((b for b in books if b["id"] == book_id), None)
-    if not book:
-        return HttpResponse("<h2>Kitob topilmadi</h2>")
-    html = f"<h2>{book['title']}</h2><p>{book['description']}</p>"
-    html += '<a href="/">🔙 Ortga</a>'
-    return HttpResponse(html)
+    return HttpResponse(output)
